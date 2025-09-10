@@ -20,41 +20,37 @@ const DEVICE_COLORS = [
 ];
 
 export function TemperatureChart({ devices, historicalData }: TemperatureChartProps) {
-  // Combine all data points and sort by timestamp
+  // Create separate data points for each device's timeline
   const allDataPoints = React.useMemo(() => {
-    const timestamps = new Set<string>();
-    const deviceDataMap: Record<string, Record<string, number>> = {};
+    const allPoints: Array<Record<string, string | number>> = [];
 
-    // Collect all timestamps and organize data by device
+    // For each device, create data points with only that device's data
     devices.forEach((device) => {
       const readings = historicalData[device.id] || [];
-      deviceDataMap[device.id] = {};
       
       readings.forEach(reading => {
         const timestamp = reading.timestamp;
-        timestamps.add(timestamp);
-        deviceDataMap[device.id][timestamp] = reading.temperature;
+        const existingPoint = allPoints.find(point => point.timestamp === timestamp);
+        
+        if (existingPoint) {
+          // Add this device's data to existing timestamp
+          existingPoint[device.name] = Number(reading.temperature.toFixed(1));
+        } else {
+          // Create new data point for this timestamp
+          const newPoint: Record<string, string | number> = {
+            timestamp,
+            formattedTime: format(parseISO(timestamp), 'MMM dd HH:mm'),
+          };
+          newPoint[device.name] = Number(reading.temperature.toFixed(1));
+          allPoints.push(newPoint);
+        }
       });
     });
 
-    // Create chart data
-    return Array.from(timestamps)
-      .sort()
-      .map(timestamp => {
-        const dataPoint: Record<string, string | number> = {
-          timestamp,
-          formattedTime: format(parseISO(timestamp), 'MMM dd HH:mm'),
-        };
-
-        devices.forEach(device => {
-          const temp = deviceDataMap[device.id][timestamp];
-          if (temp !== undefined) {
-            dataPoint[device.name] = Number(temp.toFixed(1));
-          }
-        });
-
-        return dataPoint;
-      });
+    // Sort by timestamp and return
+    return allPoints.sort((a, b) => 
+      new Date(a.timestamp as string).getTime() - new Date(b.timestamp as string).getTime()
+    );
   }, [devices, historicalData]);
 
   const formatTooltipLabel = (label: string) => {
