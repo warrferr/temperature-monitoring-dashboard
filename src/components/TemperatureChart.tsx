@@ -25,12 +25,14 @@ export function TemperatureChart({ devices, historicalData }: TemperatureChartPr
     const allPoints: Array<Record<string, string | number>> = [];
 
     // Debug: Log the data we're working with
-    console.log('Chart data debug:', {
+    const now = new Date().toISOString();
+    console.log('Chart data debug at', now, ':', {
       deviceCount: devices.length,
       historicalData: Object.keys(historicalData).map(deviceId => ({
         deviceId,
         readingCount: historicalData[deviceId]?.length || 0,
-        latestReading: historicalData[deviceId]?.[historicalData[deviceId]?.length - 1]?.timestamp
+        latestReading: historicalData[deviceId]?.[historicalData[deviceId]?.length - 1]?.timestamp,
+        oldestReading: historicalData[deviceId]?.[0]?.timestamp
       }))
     });
 

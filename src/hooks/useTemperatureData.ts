@@ -51,14 +51,16 @@ export function useTemperatureData() {
           .eq('device_id', device.id)
           .gte('temperature', -20) // Filter out error readings
           .gte('timestamp', new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString())
-          .order('timestamp', { ascending: true });
+          .order('timestamp', { ascending: false })
+          .limit(1000);
 
         devicesWithReadings.push({
           ...device,
           latest_reading: latestReading || undefined,
         });
 
-        historicalDataMap[device.id] = historicalReadings || [];
+        // Reverse to get chronological order for chart (oldest to newest)
+        historicalDataMap[device.id] = (historicalReadings || []).reverse();
       }
 
       setDevices(devicesWithReadings);
