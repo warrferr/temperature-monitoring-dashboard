@@ -24,6 +24,16 @@ export function TemperatureChart({ devices, historicalData }: TemperatureChartPr
   const allDataPoints = React.useMemo(() => {
     const allPoints: Array<Record<string, string | number>> = [];
 
+    // Debug: Log the data we're working with
+    console.log('Chart data debug:', {
+      deviceCount: devices.length,
+      historicalData: Object.keys(historicalData).map(deviceId => ({
+        deviceId,
+        readingCount: historicalData[deviceId]?.length || 0,
+        latestReading: historicalData[deviceId]?.[historicalData[deviceId]?.length - 1]?.timestamp
+      }))
+    });
+
     // For each device, create data points with only that device's data
     devices.forEach((device) => {
       const readings = historicalData[device.id] || [];

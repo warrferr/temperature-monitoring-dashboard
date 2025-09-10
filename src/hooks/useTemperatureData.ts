@@ -162,7 +162,8 @@ export function useTemperatureData() {
         (payload) => {
           // Refresh data when new valid readings are inserted
           console.log('Real-time update received:', payload);
-          fetchDevicesWithLatestReadings();
+          // Force complete data refresh to update both cards AND historical chart data
+          refreshData();
         }
       )
       .subscribe();
